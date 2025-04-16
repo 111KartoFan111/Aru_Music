@@ -1,0 +1,55 @@
+.favorite-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    transition: all 0.3s ease;
+    padding: 8px;
+    border-radius: 50%;
+    outline: none;
+  }
+  
+  .favorite-button svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 0px;
+  }
+  
+  .favorite-button:hover {
+    color: #ff4081;
+    background-color: rgba(255, 64, 129, 0.1);
+  }
+  
+  .favorite-button.active {
+    color: #ff4081;
+  }
+  
+  .favorite-button.active:hover {
+    color: #ff1744;
+  }
+  
+  /* Анимация для добавления в избранное */
+  .favorite-button.active svg {
+    animation: heartBeat 0.3s ease-in-out;
+  }
+  
+  @keyframes heartBeat {
+    0% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.2);
+    }
+    50% {
+      transform: scale(1);
+    }
+    75% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }

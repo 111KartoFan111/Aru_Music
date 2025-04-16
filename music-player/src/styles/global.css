@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #8257e6;
+  --secondary-color: #6833e4;
+  --accent-color: #9f75ff;
+  --text-color: #222;
+  --text-light: #777;
+  --background-light: #fff;
+  --background-dark: #f4f4f4;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-color);
+  background: linear-gradient(135deg, 
+    #ff9a9e 0%, 
+    #fad0c4 10%, 
+    #c9f5d9 25%, 
+    #a7d7f2 40%, 
+    #b8c4f9 55%, 
+    #d4bbff 70%,
+    #fbc2eb 85%,
+    #a6c1ee 100%);
+  background-attachment: fixed;
+  background-size: 400% 400%;
+  animation: gradientBackground 15s ease infinite;
+  transition: background-color 1s ease;
+  min-height: 100vh;
+}
+
+@keyframes gradientBackground {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.app-container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  flex-wrap: wrap;  
+}
+
+header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 10px rgba(130, 87, 230, 0.3);
+  letter-spacing: 1px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 992px) {
+  main {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 25px;
+  }
+}
+
+.player-section {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 450px;
+}
+
+.player-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.third-section {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 450px;
+}
+
+.third-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.library-section {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 450px;
+}
+
+.library-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  transition: var(--transition);
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Стилизация скроллбара */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-dark);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
+
+.app {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.content {
+  position: relative;
+  z-index: 1; /* Чтобы контент был поверх фона */
+}

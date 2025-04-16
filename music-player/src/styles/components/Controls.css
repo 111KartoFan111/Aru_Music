@@ -1,0 +1,79 @@
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+    margin-left: -80px;
+  }
+  
+  .control-button {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    margin: 0 0.5rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    margin-left: -2px;
+  }
+  
+  .control-button svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-color);
+  }
+  
+  .control-button.play-pause {
+    background-color: var(--primary-color);
+    width: 60px;
+    height: 60px;
+  }
+  
+  .control-button.play-pause svg {
+    width: 30px;
+    height: 30px;
+    fill: white;
+  }
+  
+  .control-button.active svg {
+    fill: var(--primary-color);
+  }
+  
+  .control-button:hover {
+    background-color: var(--background-dark);
+  }
+  
+  .control-button.play-pause:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  .control-button.prev svg,
+  .control-button.next svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  @media (max-width: 576px) {
+    .control-button {
+      margin: 0 0.3rem;
+    }
+    
+    .control-button.play-pause {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .control-button svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .control-button.play-pause svg {
+      width: 24px;
+      height: 24px;
+    }
+  }

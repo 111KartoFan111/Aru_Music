@@ -1,0 +1,55 @@
+.like-minded-container {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  .like-minded-header {
+    margin-bottom: 10px;
+  }
+  
+  .like-minded-header h4 {
+    font-size: 1rem;
+    color: #555;
+    margin: 0;
+    font-weight: 500;
+  }
+  
+  .like-minded-users {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .like-minded-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  
+  .user-name {
+    font-size: 0.8rem;
+    color: #555;
+    text-align: center;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }

@@ -1,0 +1,109 @@
+.volume-container {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+  }
+  
+  .volume-button {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  
+  .volume-button svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-color);
+  }
+  
+  .volume-button:hover {
+    background-color: var(--background-dark);
+    border-radius: 50%;
+  }
+  
+  .volume-slider-container {
+    position: relative;
+    width: 100px;
+    height: 6px;
+    background-color: var(--background-dark);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-left: 0.5rem;
+  }
+  
+  .volume-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  
+  .volume-slider {
+    position: relative;
+    top: -7px;
+    width: 100px;
+    height: 21px;
+    opacity: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    outline: none;
+    margin: 0;
+    z-index: 10;
+    pointer-events: all;
+  }
+  
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  
+  .volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border: none;
+  }
+  
+  .volume-slider-container:hover .volume-slider::-webkit-slider-thumb,
+  .volume-slider:active::-webkit-slider-thumb {
+    opacity: 1;
+  }
+  
+  .volume-slider-container:hover .volume-slider::-moz-range-thumb,
+  .volume-slider:active::-moz-range-thumb {
+    opacity: 1;
+  }
+
+  .volume-slider::-webkit-slider-thumb,
+.volume-slider::-moz-range-thumb {
+  opacity: 1; /* Сразу видимый */
+}
+  
+  @media (max-width: 576px) {
+    .volume-slider-container {
+      width: 60px;
+    }
+  }

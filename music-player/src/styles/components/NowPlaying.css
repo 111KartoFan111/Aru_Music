@@ -1,0 +1,111 @@
+.now-playing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .now-playing-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 250px;
+    font-size: 1.2rem;
+    color: var(--text-light);
+    text-align: center;
+    background-color: var(--background-dark);
+    border-radius: 12px;
+  }
+  
+  .album-cover-container {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    perspective: 1000px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .album-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    position: relative;
+  }
+  
+  .vinyl-disc {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at center,
+      #111 0%,
+      #111 20%,
+      #333 20%,
+      #333 30%,
+      #111 30%,
+      #111 35%,
+      #333 35%,
+      #333 40%,
+      #111 40%,
+      #111 45%,
+      #333 45%,
+      #333 50%,
+      #111 50%,
+      #111 80%,
+      transparent 80%
+    );
+    transform: translate(-50%, -50%) translateZ(-10px);
+    z-index: 1;
+    opacity: 0.8;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .track-info {
+    text-align: center;
+    padding: 0.5rem;
+  }
+  
+  .track-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--text-color);
+  }
+  
+  .track-artist {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+  }
+  
+  .track-genre {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 768px) {
+    .album-cover-container {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .track-title {
+      font-size: 1.3rem;
+    }
+    
+    .track-artist {
+      font-size: 1rem;
+    }
+  }

@@ -1,0 +1,127 @@
+.dislikes-list-container {
+    width: 100%;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dislikes-list-container .list-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+  }
+  
+  .no-dislikes {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-style: italic;
+  }
+  
+  .dislikes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .dislike-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .dislike-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .dislike-item.active {
+    background-color: #e6e6ff;
+    border-left: 4px solid #3f51b5;
+  }
+  
+  .dislike-item .track-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-right: 15px;
+    position: relative;
+  }
+  
+  .dislike-item .track-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .dislike-item .play-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .dislike-item:hover .play-icon,
+  .dislike-item.active .play-icon {
+    opacity: 1;
+  }
+  
+  .dislike-item .play-icon svg {
+    width: 30px;
+    height: 30px;
+    color: white;
+  }
+  
+  .dislike-item .track-details {
+    flex: 1;
+  }
+  
+  .dislike-item .track-name {
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+  }
+  
+  .dislike-item .track-artist {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 4px 0 0 0;
+  }
+  
+  .remove-dislike-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #3f51b5;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .remove-dislike-button:hover {
+    background-color: rgba(63, 81, 181, 0.1);
+    color: #303f9f;
+  }
+  
+  .remove-dislike-button svg {
+    width: 24px;
+    height: 24px;
+  }

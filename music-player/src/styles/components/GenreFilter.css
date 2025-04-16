@@ -1,0 +1,38 @@
+.genre-filter {
+    margin-bottom: 1.5rem;
+  }
+  
+  .filter-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+  }
+  
+  .genres-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .genre-button {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background-color: var(--background-dark);
+    color: var(--text-color);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  
+  .genre-button.active {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .genre-button:hover {
+    background-color: var(--primary-color);
+    color: white;
+    opacity: 0.9;
+  }

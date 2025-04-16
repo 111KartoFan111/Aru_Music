@@ -1,0 +1,259 @@
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #a6c1ee 0%, #fbc2eb 100%);
+    overflow: hidden;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    padding: 2rem;
+    margin-left: 180px; /* Смещение для боковой панели */
+    transition: margin-left 0.3s ease;
+  }
+  
+  .home {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1400px; /* Ограничиваем ширину для аккуратности */
+    margin: 0 auto;
+  }
+  
+  .section {
+    flex: 1;
+    min-width: 0; /* Предотвращает переполнение */
+  }
+  
+  .player-section,
+  .library-section,
+  .third-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 1.5rem;
+    animation: fadeIn 0.5s ease-in;
+    height: 755px; /* Фиксированная высота для выравнивания */
+    overflow: auto; /* Если контент переполняется */
+  }
+  
+  .about {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 500px;
+    margin: 0 auto 2rem;
+    animation: fadeInUp 0.7s ease-in-out;
+    position: relative;
+    overflow: hidden;
+    margin-left: 100px;
+  }
+  
+  .about::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(130, 87, 230, 0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+    z-index: 0;
+  }
+  
+  .about-content {
+    position: relative;
+    z-index: 1;
+    color: #333;
+  }
+  
+  .about-title {
+    font-size: 2rem;
+    color: #8257e6;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .about p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    text-align: justify;
+  }
+  
+  .contact-info {
+    font-size: 1rem;
+    color: #555;
+    text-align: center;
+  }
+  
+  .contact-info i {
+    margin-right: 0.5rem;
+    color: #8257e6;
+  }
+  
+  .contact-info a {
+    color: #8257e6;
+    text-decoration: none;
+  }
+  
+  .contact-info a:hover {
+    text-decoration: underline;
+  }
+  
+  .search {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 800px;
+    margin: 0 auto 2rem;
+    animation: fadeInUp 0.7s ease-in-out;
+    margin-left: 100px;
+  }
+  
+  .search-title {
+    font-size: 2rem;
+    color: #8257e6;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .search-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    margin-top: -10px;
+  }
+  
+  .search-input {
+    flex-grow: 1;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .search-input:focus {
+    border-color: #8257e6;
+    box-shadow: 0 0 10px rgba(130, 87, 230, 0.2);
+  }
+  
+  .genre-filter {
+    margin-top: 25px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .genre-filter:focus {
+    border-color: #8257e6;
+    box-shadow: 0 0 10px rgba(130, 87, 230, 0.2);
+  }
+  
+  .search-results {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    min-height: 200px;
+  }
+  
+  .search-results div {
+    text-align: center;
+    color: #888;
+    font-size: 1.1rem;
+  }
+  
+  .playlists,
+  .profile {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 450px;
+    margin: 0 auto 2rem;
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  .profile{
+    margin-left: 0px;
+    width: 600px;
+  }
+  
+  .search-results,
+  .playlist-list,
+  .profile-settings {
+    margin-top: 1rem;
+  }
+  
+  .create-playlist,
+  .profile-settings {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .create-playlist input,
+  .profile-settings input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    flex-grow: 1;
+  }
+  
+  .create-playlist button,
+  .profile-settings button {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(90deg, #8257e6, #9f75ff);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .create-playlist button:hover,
+  .profile-settings button:hover {
+    transform: scale(1.05);
+  }
+  
+  .playlist-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
