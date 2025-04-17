@@ -171,14 +171,7 @@ const AdminPanel = () => {
       formData.append('duration', newTrack.duration.toString()); // Преобразуйте в строку
       formData.append('cover', coverFile);
       formData.append('audio', audioFile);
-      
-      // Логирование для отладки
-      console.log('Form data contents:');
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
-      }
-      
-      // Попробуйте использовать fetch вместо axios
+
       const response = await fetch(`${API_URL}/tracks`, {
         method: 'POST',
         headers: {
@@ -187,15 +180,15 @@ const AdminPanel = () => {
         },
         body: formData
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         throw new Error(errorData?.detail || `HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Upload response:', data);
-      
+
       // Сброс формы и обновление списка
       setNewTrack({ title: '', artist: '', genre: '', duration: 0 });
       setCoverFile(null);
@@ -212,14 +205,13 @@ const AdminPanel = () => {
   // Удаление трека
   const handleDeleteTrack = async (id) => {
     if (!confirm('Вы уверены, что хотите удалить этот трек?')) return;
-    
     try {
       setIsLoading(true);
-      
+
       await axios.delete(`${API_URL}/tracks/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      
+
       // Обновление списка треков
       fetchTracks();
     } catch (err) {

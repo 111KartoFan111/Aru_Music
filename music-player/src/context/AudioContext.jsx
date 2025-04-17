@@ -22,7 +22,7 @@ export const AudioProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
   const audioRef = useRef(new Audio());
   
-  // Get auth headers depending on authentication status
+  // Get auth headers
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -42,7 +42,7 @@ export const AudioProvider = ({ children }) => {
       }
       
       const response = await axios.get(url, {
-        headers: getAuthHeaders() // Add auth headers to request
+        headers: getAuthHeaders()
       });
       
       if (response.data && response.data.items) {
@@ -64,16 +64,34 @@ export const AudioProvider = ({ children }) => {
     fetchTracks(selectedGenre);
   }, [selectedGenre, user.isAuthenticated]);
   
-  // Fetch track details
+  // Fetch track details with interaction status (favorited/disliked)
   const fetchTrackDetails = async (trackId) => {
     try {
       const response = await axios.get(`${API_URL}/tracks/${trackId}`, {
-        headers: getAuthHeaders() // Add auth headers to request
+        headers: getAuthHeaders()
       });
       return response.data;
     } catch (err) {
       console.error('Failed to fetch track details:', err);
       return null;
+    }
+  };
+  
+  // Update current track when changed
+  const updateCurrentTrack = async (track) => {
+    // First, set the basic track info to avoid delay in UI
+    setCurrentTrack(track);
+    
+    // Then fetch the detailed info with like/dislike status if user is authenticated
+    if (user.isAuthenticated && track) {
+      try {
+        const detailedTrack = await fetchTrackDetails(track.id);
+        if (detailedTrack) {
+          setCurrentTrack(detailedTrack);
+        }
+      } catch (err) {
+        console.error('Failed to update track details:', err);
+      }
     }
   };
   
@@ -134,10 +152,10 @@ export const AudioProvider = ({ children }) => {
     }
   }, [isPlaying]);
   
-  // Handle the favorite action
+  // Toggle favorite status
   const toggleFavorite = async (trackId) => {
-    if (!user || !user.isAuthenticated) {
-      setError('Пожалуйста, войдите, чтобы добавить в избранное');
+    if (!user.isAuthenticated) {
+      setError('Please log in to add to favorites');
       return;
     }
     
@@ -145,39 +163,42 @@ export const AudioProvider = ({ children }) => {
       const track = await fetchTrackDetails(trackId);
       
       if (track.is_favorited) {
+        // Remove from favorites
         await axios.delete(`${API_URL}/favorites/${trackId}`, {
           headers: getAuthHeaders()
         });
       } else {
+        // Add to favorites
         await axios.post(`${API_URL}/favorites/${trackId}`, {}, {
           headers: getAuthHeaders()
         });
       }
       
-      // Получить обновленные данные трека
+      // Get updated track details
       const updatedTrack = await fetchTrackDetails(trackId);
       
-      // Обновить tracksList для отражения статуса избранного
+      // Update tracksList 
       setTracksList(tracksList.map(t => 
-        t.id === trackId ? { ...t, is_favorited: !track.is_favorited } : t
+        t.id === trackId ? { ...t, is_favorited: updatedTrack.is_favorited, is_disliked: updatedTrack.is_disliked } : t
       ));
       
-      // Обновить текущий трек, если это он
+      // Update current track if it's the one being favorited
       if (currentTrack && currentTrack.id === trackId) {
         setCurrentTrack(updatedTrack);
       }
       
-      // Отправить событие
+      // Dispatch event to update other components
       window.dispatchEvent(new Event('favoritesUpdated'));
     } catch (err) {
-      console.error('Ошибка переключения избранного:', err);
-      setError('Не удалось обновить статус избранного');
+      console.error('Error toggling favorite:', err);
+      setError('Failed to update favorite status');
     }
   };
   
+  // Toggle dislike status
   const toggleDislike = async (trackId) => {
-    if (!user || !user.isAuthenticated) {
-      setError('Пожалуйста, войдите, чтобы поставить дизлайк');
+    if (!user.isAuthenticated) {
+      setError('Please log in to dislike tracks');
       return;
     }
     
@@ -185,64 +206,73 @@ export const AudioProvider = ({ children }) => {
       const track = await fetchTrackDetails(trackId);
       
       if (track.is_disliked) {
+        // Remove from dislikes
         await axios.delete(`${API_URL}/dislikes/${trackId}`, {
           headers: getAuthHeaders()
         });
       } else {
+        // Add to dislikes
         await axios.post(`${API_URL}/dislikes/${trackId}`, {}, {
           headers: getAuthHeaders()
         });
       }
       
-      // Получить обновленные данные трека
+      // Get updated track details
       const updatedTrack = await fetchTrackDetails(trackId);
       
-      // Обновить tracksList для отражения статуса дизлайка
+      // Update tracksList
       setTracksList(tracksList.map(t => 
-        t.id === trackId ? { ...t, is_disliked: !track.is_disliked } : t
+        t.id === trackId ? { ...t, is_favorited: updatedTrack.is_favorited, is_disliked: updatedTrack.is_disliked } : t
       ));
       
-      // Обновить текущий трек, если это он
+      // Update current track if it's the one being disliked
       if (currentTrack && currentTrack.id === trackId) {
         setCurrentTrack(updatedTrack);
       }
       
-      // Отправить событие
+      // Dispatch event to update other components
       window.dispatchEvent(new Event('dislikesUpdated'));
     } catch (err) {
-      console.error('Ошибка переключения дизлайка:', err);
-      setError('Не удалось обновить статус дизлайка');
+      console.error('Error toggling dislike:', err);
+      setError('Failed to update dislike status');
     }
   };
-  // Function for playing the next track
+  
+  // Play next track
   const playNext = () => {
     if (tracksList.length === 0) return;
     
     if (isShuffle) {
       // Play random track
       const randomIndex = Math.floor(Math.random() * tracksList.length);
-      setCurrentTrack(tracksList[randomIndex]);
+      updateCurrentTrack(tracksList[randomIndex]);
     } else {
       // Play next track in order
       const currentIndex = tracksList.findIndex(track => track.id === currentTrack.id);
       const nextIndex = (currentIndex + 1) % tracksList.length;
-      setCurrentTrack(tracksList[nextIndex]);
+      updateCurrentTrack(tracksList[nextIndex]);
     }
   };
   
-  // Function for playing the previous track
+  // Play previous track
   const playPrev = () => {
     if (tracksList.length === 0) return;
     
+    // If current time is more than 3 seconds, restart the current track
+    if (audioRef.current.currentTime > 3) {
+      audioRef.current.currentTime = 0;
+      return;
+    }
+    
     if (isShuffle) {
-      // Play random track when shuffle is on
+      // Play random track
       const randomIndex = Math.floor(Math.random() * tracksList.length);
-      setCurrentTrack(tracksList[randomIndex]);
+      updateCurrentTrack(tracksList[randomIndex]);
     } else {
       // Play previous track
       const currentIndex = tracksList.findIndex(track => track.id === currentTrack.id);
       const prevIndex = (currentIndex - 1 + tracksList.length) % tracksList.length;
-      setCurrentTrack(tracksList[prevIndex]);
+      updateCurrentTrack(tracksList[prevIndex]);
     }
   };
   
@@ -311,7 +341,7 @@ export const AudioProvider = ({ children }) => {
         audioRef,
         tracksList,
         currentTrack,
-        setCurrentTrack,
+        setCurrentTrack: updateCurrentTrack, // Use the enhanced setter
         isPlaying,
         duration,
         currentTime,
@@ -332,7 +362,8 @@ export const AudioProvider = ({ children }) => {
         toggleFavorite,
         toggleDislike,
         fetchTracks,
-        fetchTrackDetails
+        fetchTrackDetails,
+        getAuthHeaders
       }}
     >
       {children}

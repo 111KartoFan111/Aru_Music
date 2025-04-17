@@ -32,7 +32,7 @@ const FavoritesList = () => {
 
     try {
       const response = await axios.get(`${API_URL}/favorites`, {
-        headers: getAuthHeaders()
+headers: getAuthHeaders()
       });
       
       if (response.data && response.data.items) {
@@ -86,7 +86,7 @@ const FavoritesList = () => {
     
     try {
       await axios.delete(`${API_URL}/favorites/${trackId}`, {
-        headers: getAuthHeaders()
+headers: getAuthHeaders()
       });
       
       // Update favorites list

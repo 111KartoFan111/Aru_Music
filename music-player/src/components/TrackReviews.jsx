@@ -32,7 +32,7 @@ const TrackReviews = () => {
     
     try {
       const response = await axios.get(`${API_URL}/reviews?track_id=${trackId}`, {
-        headers: getAuthHeaders()
+headers: getAuthHeaders()
       });
       
       if (response.data && response.data.items) {
@@ -73,7 +73,7 @@ const TrackReviews = () => {
           text: newReview 
         },
         {
-          headers: getAuthHeaders()
+  headers: getAuthHeaders()
         }
       );
       

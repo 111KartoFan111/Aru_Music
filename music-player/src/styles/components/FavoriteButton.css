@@ -1,55 +1,94 @@
 .favorite-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #888;
-    transition: all 0.3s ease;
-    padding: 8px;
-    border-radius: 50%;
-    outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 50%;
+  outline: none;
+  position: relative;
+}
+
+.favorite-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.favorite-button:hover {
+  color: #ff4081;
+  background-color: rgba(255, 64, 129, 0.1);
+}
+
+.favorite-button.active {
+  color: #ff4081;
+}
+
+.favorite-button.active:hover {
+  color: #ff1744;
+}
+
+/* Animation for adding to favorites */
+.favorite-button.active svg {
+  animation: heartBeat 0.5s ease-in-out;
+}
+
+/* Disabled state */
+.favorite-button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.favorite-button.disabled:hover {
+  background-color: transparent;
+  color: #888;
+}
+
+/* Updating state */
+.favorite-button.updating {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.favorite-button.updating::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
   }
-  
-  .favorite-button svg {
-    width: 24px;
-    height: 24px;
-    margin-right: 0px;
+  25% {
+    transform: scale(1.3);
   }
-  
-  .favorite-button:hover {
-    color: #ff4081;
-    background-color: rgba(255, 64, 129, 0.1);
+  50% {
+    transform: scale(1);
   }
-  
-  .favorite-button.active {
-    color: #ff4081;
+  75% {
+    transform: scale(1.2);
   }
-  
-  .favorite-button.active:hover {
-    color: #ff1744;
+  100% {
+    transform: scale(1);
   }
-  
-  /* Анимация для добавления в избранное */
-  .favorite-button.active svg {
-    animation: heartBeat 0.3s ease-in-out;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  @keyframes heartBeat {
-    0% {
-      transform: scale(1);
-    }
-    25% {
-      transform: scale(1.2);
-    }
-    50% {
-      transform: scale(1);
-    }
-    75% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-    }
+  100% {
+    transform: rotate(360deg);
   }
+}

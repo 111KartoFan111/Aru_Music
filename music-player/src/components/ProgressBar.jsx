@@ -1,41 +1,90 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { AudioContext } from '../context/AudioContext';
 import { formatTime } from '../utils/audioUtils';
 import '../styles/components/ProgressBar.css';
 
 const ProgressBar = () => {
-  const { duration, currentTime, seekTime } = useContext(AudioContext);
-  const [isSeeking, setIsSeeking] = useState(false);
+  const { duration, currentTime, seekTime, isPlaying } = useContext(AudioContext);
+  const [isDragging, setIsDragging] = useState(false);
+  const [localProgress, setLocalProgress] = useState(0);
+  const progressRef = useRef(null);
 
-  // Рассчитываем процент проигрывания
-  const progressPercentage = duration ? (currentTime / duration) * 100 : 0;
+  // Update local progress when current time changes (if not dragging)
+  useEffect(() => {
+    if (!isDragging) {
+      setLocalProgress(duration ? (currentTime / duration) * 100 : 0);
+    }
+  }, [currentTime, duration, isDragging]);
 
-  // Обработчик изменения положения ползунка
-  const handleProgressChange = (e) => {
-    const seekPosition = (e.target.value / 100) * duration;
+  // Handle drag start
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    // Apply the seek
+    const seekPosition = (localProgress / 100) * duration;
     seekTime(seekPosition);
+    
+    // Small delay before setting isDragging to false to allow the seekTime to take effect
+    setTimeout(() => {
+      setIsDragging(false);
+    }, 200);
+  };
+
+  // Handle progress change
+  const handleProgressChange = (e) => {
+    const newProgress = parseFloat(e.target.value);
+    setLocalProgress(newProgress);
+  };
+
+  // Handle click on the progress bar wrapper (for direct seeking)
+  const handleProgressBarClick = (e) => {
+    if (progressRef.current && !isDragging) {
+      const rect = progressRef.current.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percentClicked = (clickX / rect.width) * 100;
+      
+      // Ensure the percentage is within bounds
+      const boundedPercentage = Math.max(0, Math.min(100, percentClicked));
+      
+      // Seek to the clicked position
+      const seekPosition = (boundedPercentage / 100) * duration;
+      seekTime(seekPosition);
+    }
   };
 
   return (
     <div className="progress-container">
       <span className="time current-time">{formatTime(currentTime)}</span>
       
-      <div className="progress-bar-wrapper">
+      <div 
+        className="progress-bar-wrapper" 
+        ref={progressRef}
+        onClick={handleProgressBarClick}
+      >
         <input
           type="range"
           min="0"
           max="100"
-          value={progressPercentage}
-          className="progress-bar"
+          value={localProgress}
+          className={`progress-bar ${isDragging ? 'dragging' : ''}`}
           onChange={handleProgressChange}
-          onMouseDown={() => setIsSeeking(true)}
-          onMouseUp={() => setIsSeeking(false)}
-          onTouchStart={() => setIsSeeking(true)}
-          onTouchEnd={() => setIsSeeking(false)}
+          onMouseDown={handleDragStart}
+          onMouseUp={handleDragEnd}
+          onTouchStart={handleDragStart}
+          onTouchEnd={handleDragEnd}
         />
         <div 
           className="progress-filled" 
-          style={{ width: `${progressPercentage}%` }}
+          style={{ width: `${localProgress}%` }}
+        />
+        
+        {/* Thumb indicator for better visualization */}
+        <div 
+          className={`progress-thumb ${isDragging || isPlaying ? 'visible' : ''}`}
+          style={{ left: `${localProgress}%` }}
         />
       </div>
       
