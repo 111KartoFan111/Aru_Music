@@ -14,6 +14,12 @@ const DislikesList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   // Fetch dislikes from API
   const fetchDislikes = async () => {
     if (!user.isAuthenticated) {
@@ -26,9 +32,15 @@ const DislikesList = () => {
 
     try {
       const response = await axios.get(`${API_URL}/dislikes`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: getAuthHeaders()
       });
-      setDislikes(response.data.items.map(item => item.track));
+      
+      if (response.data && response.data.items) {
+        setDislikes(response.data.items.map(item => item.track));
+      } else {
+        console.error('Unexpected API response format:', response.data);
+        setError('Received unexpected data format from the server');
+      }
     } catch (err) {
       console.error('Failed to fetch dislikes:', err);
       setError('Failed to load dislikes');
@@ -74,7 +86,7 @@ const DislikesList = () => {
     
     try {
       await axios.delete(`${API_URL}/dislikes/${trackId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: getAuthHeaders()
       });
       
       // Update dislikes list
@@ -158,7 +170,7 @@ const DislikesList = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="track-image">
-                  <img src={track.cover_path} alt={track.title} />
+                <img src={`http://localhost:8000${track.cover_path.replace(/\\/g, '/')}`} alt={track.title} />
                   
                   <div className="play-icon">
                     {currentTrack && currentTrack.id === track.id && isPlaying ? (

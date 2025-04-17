@@ -1,11 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AudioContext } from '../context/AudioContext';
 import { formatTime } from '../utils/audioUtils';
 import '../styles/components/TrackList.css';
 
 const TrackList = () => {
-  const { tracksList, currentTrack, setCurrentTrack, togglePlayPause, isPlaying } = useContext(AudioContext);
+  const { 
+    tracksList, 
+    currentTrack, 
+    setCurrentTrack, 
+    togglePlayPause, 
+    isPlaying,
+    isLoading,
+    error
+  } = useContext(AudioContext);
 
   // Обработчик выбора трека
   const handleSelectTrack = (track) => {
@@ -37,6 +45,24 @@ const TrackList = () => {
     visible: { opacity: 1, y: 0 }
   };
 
+  if (isLoading) {
+    return (
+      <div className="track-list-container">
+        <h3 className="list-title">Треки</h3>
+        <div className="loading-state">Загрузка треков...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="track-list-container">
+        <h3 className="list-title">Треки</h3>
+        <div className="error-state">{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="track-list-container">
       <h3 className="list-title">Треки</h3>
@@ -61,7 +87,8 @@ const TrackList = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="track-image">
-                  <img src={track.coverPath} alt={track.title} />
+                <img src={`http://localhost:8000${track.cover_path.replace(/\\/g, '/')}`} alt={track.title} />
+
                   
                   <div className="play-icon">
                     {currentTrack && currentTrack.id === track.id && isPlaying ? (
@@ -75,12 +102,11 @@ const TrackList = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="track-details">
                   <h4 className="track-name">{track.title}</h4>
                   <p className="track-artist">{track.artist}</p>
                 </div>
-                
                 <span className="track-genre">{track.genre}</span>
               </motion.div>
             ))}

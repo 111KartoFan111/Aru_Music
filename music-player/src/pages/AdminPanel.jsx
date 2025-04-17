@@ -339,7 +339,11 @@ const AdminPanel = () => {
               trackList.map(track => (
                 <div key={track.id} className="track-item">
                   <div className="track-info">
-                    <img src={track.cover_path} alt={track.title} className="track-thumbnail" />
+                  <img 
+                  src={`http://localhost:8000${track.cover_path.replace(/\\/g, '/')}`}
+                  alt={track.title} 
+                  className="track-thumbnail" 
+                />
                     <span>{track.title} - {track.artist} ({track.genre})</span>
                   </div>
                   <div className="track-actions">

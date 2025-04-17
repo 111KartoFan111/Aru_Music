@@ -17,6 +17,12 @@ const TrackReviews = () => {
   const [error, setError] = useState(null);
   const [submitError, setSubmitError] = useState(null);
 
+  // Get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   // Fetch reviews for the current track
   const fetchReviews = async (trackId) => {
     if (!trackId) return;
@@ -25,8 +31,16 @@ const TrackReviews = () => {
     setError(null);
     
     try {
-      const response = await axios.get(`${API_URL}/reviews?track_id=${trackId}`);
-      setReviews(response.data.items);
+      const response = await axios.get(`${API_URL}/reviews?track_id=${trackId}`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (response.data && response.data.items) {
+        setReviews(response.data.items);
+      } else {
+        console.error('Unexpected API response format:', response.data);
+        setError('Received unexpected data format from the server');
+      }
     } catch (err) {
       console.error('Failed to fetch reviews:', err);
       setError('Failed to load reviews');
@@ -59,7 +73,7 @@ const TrackReviews = () => {
           text: newReview 
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: getAuthHeaders()
         }
       );
       

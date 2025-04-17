@@ -18,13 +18,13 @@ const NowPlaying = () => {
         ease: "easeOut" 
       }
     },
-    exit: { 
-      scale: 0.8, 
-      opacity: 0, 
+    exit: {
+      scale: 0.8,
+      opacity: 0,
       rotateY: 30,
-      transition: { 
-        duration: 0.4, 
-        ease: "easeIn" 
+      transition: {
+        duration: 0.4,
+        ease: "easeIn"
       }
     }
   };
@@ -33,7 +33,7 @@ const NowPlaying = () => {
 
   return (
     <div className="now-playing">
-      <motion.div 
+      <motion.div
         className="album-cover-container"
         key={currentTrack.id}
         initial="initial"
@@ -42,11 +42,10 @@ const NowPlaying = () => {
         variants={coverVariants}
       >
         <img 
-          src={currentTrack.coverPath} 
+          src={`http://localhost:8000${currentTrack.cover_path.replace(/\\/g, '/')}`}
           alt={`${currentTrack.title} cover`} 
           className="album-cover"
         />
-        
         <div className="vinyl-disc"></div>
       </motion.div>
 

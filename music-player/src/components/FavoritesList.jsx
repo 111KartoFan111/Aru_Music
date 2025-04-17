@@ -1,45 +1,78 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { AudioContext } from '../context/AudioContext';
+import { AuthContext } from '../context/AuthContext';
 import '../styles/components/FavoritesList.css';
 
+const API_URL = 'http://127.0.0.1:8000/api/v1';
+
 const FavoritesList = () => {
-  const { tracksList, currentTrack, setCurrentTrack, togglePlayPause, isPlaying } = useContext(AudioContext);
+  const { currentTrack, setCurrentTrack, togglePlayPause, isPlaying } = useContext(AudioContext);
+  const { user } = useContext(AuthContext);
   const [favorites, setFavorites] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Загружаем избранные треки при монтировании компонента и при изменении списка треков
-  useEffect(() => {
-    const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const favoriteTracks = tracksList.filter(track => favoriteIds.includes(track.id));
-    setFavorites(favoriteTracks);
-  }, [tracksList]);
+  // Get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
-  // Также обновляем при каждом добавлении/удалении из избранного
+  // Fetch favorites from API
+  const fetchFavorites = async () => {
+    if (!user.isAuthenticated) {
+      setFavorites([]);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(`${API_URL}/favorites`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (response.data && response.data.items) {
+        setFavorites(response.data.items.map(item => item.track));
+      } else {
+        console.error('Unexpected API response format:', response.data);
+        setError('Received unexpected data format from the server');
+      }
+    } catch (err) {
+      console.error('Failed to fetch favorites:', err);
+      setError('Failed to load favorites');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch favorites on component mount and when user changes
   useEffect(() => {
-    const handleStorageChange = () => {
-      const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const favoriteTracks = tracksList.filter(track => favoriteIds.includes(track.id));
-      setFavorites(favoriteTracks);
+    fetchFavorites();
+  }, [user.isAuthenticated]);
+
+  // Also update when favorites are added/removed
+  useEffect(() => {
+    const handleFavoritesUpdate = () => {
+      fetchFavorites();
     };
 
-    window.addEventListener('storage', handleStorageChange);
-
-    // Эмулируем событие storage для компонента
-    window.addEventListener('favoritesUpdated', handleStorageChange);
-
+    window.addEventListener('favoritesUpdated', handleFavoritesUpdate);
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('favoritesUpdated', handleStorageChange);
+      window.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
     };
-  }, [tracksList]);
+  }, []);
 
-  // Обработчик выбора трека
+  // Handle track selection
   const handleSelectTrack = (track) => {
-    // Если выбран текущий трек, то переключаем воспроизведение/паузу
+    // If current track is selected, toggle play/pause
     if (currentTrack && currentTrack.id === track.id) {
       togglePlayPause();
     } else {
-      // Иначе устанавливаем новый трек и начинаем воспроизведение
+      // Set new track and start playing
       setCurrentTrack(track);
       if (!isPlaying) {
         togglePlayPause();
@@ -47,23 +80,27 @@ const FavoritesList = () => {
     }
   };
 
-  // Удаление трека из избранного
-  const removeFromFavorites = (event, trackId) => {
+  // Remove track from favorites
+  const removeFromFavorites = async (event, trackId) => {
     event.stopPropagation();
     
-    const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const updatedFavorites = favoriteIds.filter(id => id !== trackId);
-    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-    
-    // Обновляем список избранных треков
-    setFavorites(favorites.filter(track => track.id !== trackId));
-
-    // Создаем и отправляем пользовательское событие об обновлении избранного
-    const event = new Event('favoritesUpdated');
-    window.dispatchEvent(event);
+    try {
+      await axios.delete(`${API_URL}/favorites/${trackId}`, {
+        headers: getAuthHeaders()
+      });
+      
+      // Update favorites list
+      setFavorites(favorites.filter(track => track.id !== trackId));
+      
+      // Create and dispatch event for other components to update
+      const event = new Event('favoritesUpdated');
+      window.dispatchEvent(event);
+    } catch (err) {
+      console.error('Failed to remove favorite:', err);
+    }
   };
 
-  // Анимация для списка треков
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -78,6 +115,36 @@ const FavoritesList = () => {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="favorites-list-container">
+        <h3 className="list-title">Избранные треки</h3>
+        <p className="loading-state">Загрузка избранных треков...</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="favorites-list-container">
+        <h3 className="list-title">Избранные треки</h3>
+        <p className="error-state">{error}</p>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!user.isAuthenticated) {
+    return (
+      <div className="favorites-list-container">
+        <h3 className="list-title">Избранные треки</h3>
+        <p className="no-favorites">Войдите в систему, чтобы видеть избранные треки</p>
+      </div>
+    );
+  }
 
   return (
     <div className="favorites-list-container">
@@ -103,7 +170,7 @@ const FavoritesList = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="track-image">
-                  <img src={track.coverPath} alt={track.title} />
+                <img src={`http://localhost:8000${track.cover_path.replace(/\\/g, '/')}`} alt={track.title} />
                   
                   <div className="play-icon">
                     {currentTrack && currentTrack.id === track.id && isPlaying ? (
