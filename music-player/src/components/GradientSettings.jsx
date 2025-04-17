@@ -17,12 +17,12 @@ const GradientSettings = () => {
   return (
     <div className="settings">
       <label htmlFor="gradient-speed">Скорость градиента</label>
-      <input 
-        type="range" 
-        id="gradient-speed" 
-        min="5" 
-        max="30" 
-        defaultValue="15" 
+      <input
+        type="range"
+        id="gradient-speed"
+        min="5"
+        max="30"
+        defaultValue="15"
       />
     </div>
   );

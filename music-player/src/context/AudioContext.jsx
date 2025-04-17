@@ -1,10 +1,13 @@
-import React, { createContext, useState, useRef, useEffect } from 'react';
-import tracks from '../data/tracks';
+import React, { createContext, useState, useRef, useEffect, useContext } from 'react';
+import axios from 'axios';
+import { AuthContext } from './AuthContext';
 
 export const AudioContext = createContext();
 
+const API_URL = 'http://127.0.0.1:8000/api/v1';
+
 export const AudioProvider = ({ children }) => {
-  const [tracksList, setTracksList] = useState(tracks);
+  const [tracksList, setTracksList] = useState([]);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -13,54 +16,94 @@ export const AudioProvider = ({ children }) => {
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState('All');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   
+  const { user } = useContext(AuthContext);
   const audioRef = useRef(new Audio());
   
-  // Фильтрация треков по жанру
-  useEffect(() => {
-    if (selectedGenre === 'All') {
-      setTracksList(tracks);
-    } else {
-      setTracksList(tracks.filter(track => track.genre === selectedGenre));
+  // Fetch tracks from API
+  const fetchTracks = async (genre = selectedGenre) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      let url = `${API_URL}/tracks`;
+      
+      // Add genre filter if not 'All'
+      if (genre !== 'All') {
+        url += `?genre=${genre}`;
+      }
+      
+      const response = await axios.get(url);
+      setTracksList(response.data.items);
+    } catch (err) {
+      console.error('Failed to fetch tracks:', err);
+      setError('Failed to load tracks. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
+  };
+  
+  // Fetch tracks initially and when genre changes
+  useEffect(() => {
+    fetchTracks(selectedGenre);
   }, [selectedGenre]);
   
-  // Загрузка последнего трека из LocalStorage
-  useEffect(() => {
-    const savedTrackId = localStorage.getItem('currentTrackId');
-    if (savedTrackId) {
-      const savedTrack = tracks.find(track => track.id === parseInt(savedTrackId));
-      if (savedTrack) {
-        setCurrentTrack(savedTrack);
-      } else {
-        setCurrentTrack(tracks[0]);
-      }
-    } else {
-      setCurrentTrack(tracks[0]);
+  // Fetch track details
+  const fetchTrackDetails = async (trackId) => {
+    try {
+      const response = await axios.get(`${API_URL}/tracks/${trackId}`);
+      return response.data;
+    } catch (err) {
+      console.error('Failed to fetch track details:', err);
+      return null;
     }
-  }, []);
+  };
   
-  // Обновление аудио
+  // Load from localStorage or API
+  useEffect(() => {
+    const loadInitialTrack = async () => {
+      const savedTrackId = localStorage.getItem('currentTrackId');
+      
+      if (savedTrackId) {
+        const trackDetails = await fetchTrackDetails(savedTrackId);
+        if (trackDetails) {
+          setCurrentTrack(trackDetails);
+        } else if (tracksList.length > 0) {
+          setCurrentTrack(tracksList[0]);
+        }
+      } else if (tracksList.length > 0) {
+        setCurrentTrack(tracksList[0]);
+      }
+    };
+    
+    if (tracksList.length > 0) {
+      loadInitialTrack();
+    }
+  }, [tracksList]);
+  
+  // Update audio element when currentTrack changes
   useEffect(() => {
     if (currentTrack) {
-      audioRef.current.src = currentTrack.audioPath;
+      audioRef.current.src = currentTrack.audio_path;
       audioRef.current.load();
       
       if (isPlaying) {
         audioRef.current.play();
       }
       
-      // Сохраняем ID текущего трека в LocalStorage
+      // Save current track ID
       localStorage.setItem('currentTrackId', currentTrack.id);
     }
   }, [currentTrack]);
   
-  // Обновление громкости
+  // Update volume
   useEffect(() => {
     audioRef.current.volume = volume;
   }, [volume]);
   
-  // Обновление состояния воспроизведения
+  // Update play state
   useEffect(() => {
     if (isPlaying) {
       audioRef.current.play();
@@ -69,35 +112,111 @@ export const AudioProvider = ({ children }) => {
     }
   }, [isPlaying]);
   
-  // Функция воспроизведения следующего трека
+  // Handle the favorite action
+  const toggleFavorite = async (trackId) => {
+    if (!user || !user.isAuthenticated) {
+      // Redirect to login or show login prompt
+      return;
+    }
+    
+    try {
+      const track = await fetchTrackDetails(trackId);
+      
+      if (track.is_favorited) {
+        // Remove from favorites
+        await axios.delete(`${API_URL}/favorites/${trackId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+      } else {
+        // Add to favorites
+        await axios.post(`${API_URL}/favorites/${trackId}`, {}, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+      }
+      
+      // Create and dispatch event to update UI
+      const event = new Event('favoritesUpdated');
+      window.dispatchEvent(event);
+      
+      // Update current track details if this is the current track
+      if (currentTrack && currentTrack.id === trackId) {
+        const updatedTrack = await fetchTrackDetails(trackId);
+        setCurrentTrack(updatedTrack);
+      }
+    } catch (err) {
+      console.error('Failed to toggle favorite:', err);
+    }
+  };
+  
+  // Handle the dislike action
+  const toggleDislike = async (trackId) => {
+    if (!user || !user.isAuthenticated) {
+      // Redirect to login or show login prompt
+      return;
+    }
+    
+    try {
+      const track = await fetchTrackDetails(trackId);
+      
+      if (track.is_disliked) {
+        // Remove from dislikes
+        await axios.delete(`${API_URL}/dislikes/${trackId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+      } else {
+        // Add to dislikes
+        await axios.post(`${API_URL}/dislikes/${trackId}`, {}, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+      }
+      
+      // Create and dispatch event to update UI
+      const event = new Event('dislikesUpdated');
+      window.dispatchEvent(event);
+      
+      // Update current track details if this is the current track
+      if (currentTrack && currentTrack.id === trackId) {
+        const updatedTrack = await fetchTrackDetails(trackId);
+        setCurrentTrack(updatedTrack);
+      }
+    } catch (err) {
+      console.error('Failed to toggle dislike:', err);
+    }
+  };
+  
+  // Function for playing the next track
   const playNext = () => {
+    if (tracksList.length === 0) return;
+    
     if (isShuffle) {
-      // Воспроизведение случайного трека
+      // Play random track
       const randomIndex = Math.floor(Math.random() * tracksList.length);
       setCurrentTrack(tracksList[randomIndex]);
     } else {
-      // Воспроизведение следующего трека по порядку
+      // Play next track in order
       const currentIndex = tracksList.findIndex(track => track.id === currentTrack.id);
       const nextIndex = (currentIndex + 1) % tracksList.length;
       setCurrentTrack(tracksList[nextIndex]);
     }
   };
   
-  // Функция воспроизведения предыдущего трека
+  // Function for playing the previous track
   const playPrev = () => {
+    if (tracksList.length === 0) return;
+    
     if (isShuffle) {
-      // Воспроизведение случайного трека при включенном перемешивании
+      // Play random track when shuffle is on
       const randomIndex = Math.floor(Math.random() * tracksList.length);
       setCurrentTrack(tracksList[randomIndex]);
     } else {
-      // Воспроизведение предыдущего трека по порядку
+      // Play previous track
       const currentIndex = tracksList.findIndex(track => track.id === currentTrack.id);
       const prevIndex = (currentIndex - 1 + tracksList.length) % tracksList.length;
       setCurrentTrack(tracksList[prevIndex]);
     }
   };
   
-  // Обработчики событий аудио
+  // Audio event handlers
   useEffect(() => {
     const audio = audioRef.current;
     
@@ -117,41 +236,41 @@ export const AudioProvider = ({ children }) => {
       }
     };
     
-    // Добавляем обработчики событий
+    // Add event listeners
     audio.addEventListener('loadeddata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
     audio.addEventListener('ended', handleEnded);
     
     return () => {
-      // Удаляем обработчики событий при размонтировании
+      // Remove event listeners
       audio.removeEventListener('loadeddata', setAudioData);
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [isRepeat, isShuffle, currentTrack, tracksList]); // Добавляем важные зависимости
+  }, [isRepeat, isShuffle, currentTrack, tracksList]);
   
-  // Функция установки времени проигрывания трека
+  // Seek time function
   const seekTime = (time) => {
     audioRef.current.currentTime = time;
     setCurrentTime(time);
   };
   
-  // Функция переключения воспроизведение/пауза
+  // Toggle play/pause
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
   };
   
-  // Функция переключения режима повтора
+  // Toggle repeat
   const toggleRepeat = () => {
     setIsRepeat(!isRepeat);
   };
   
-  // Функция переключения режима перемешивания
+  // Toggle shuffle
   const toggleShuffle = () => {
     setIsShuffle(!isShuffle);
   };
   
-  // Функция установки громкости
+  // Set volume
   const handleVolumeChange = (newVolume) => {
     setVolume(newVolume);
   };
@@ -171,13 +290,19 @@ export const AudioProvider = ({ children }) => {
         isShuffle,
         selectedGenre,
         setSelectedGenre,
+        isLoading,
+        error,
         togglePlayPause,
         seekTime,
         playNext,
         playPrev,
         toggleRepeat,
         toggleShuffle,
-        handleVolumeChange
+        handleVolumeChange,
+        toggleFavorite,
+        toggleDislike,
+        fetchTracks,
+        fetchTrackDetails
       }}
     >
       {children}

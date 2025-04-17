@@ -10,7 +10,6 @@ const GenreFilter = () => {
   return (
     <div className="genre-filter">
       <h3 className="filter-title">Фильтр по жанрам</h3>
-      
       <div className="genres-container">
         <motion.button
           className={`genre-button ${selectedGenre === 'All' ? 'active' : ''}`}
@@ -20,7 +19,7 @@ const GenreFilter = () => {
         >
           Все
         </motion.button>
-        
+
         {genres.map(genre => (
           <motion.button
             key={genre}

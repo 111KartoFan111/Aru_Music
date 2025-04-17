@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+      - ./media:/app/media
+    environment:
+      - DATABASE_URL=postgresql://postgres:0000@db:5432/tuneviewer
+      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
+    depends_on:
+      - db
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=tuneviewer
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

@@ -9,9 +9,9 @@ const NowPlaying = () => {
   // Анимация появления обложки альбома
   const coverVariants = {
     initial: { scale: 0.8, opacity: 0, rotateY: -30 },
-    animate: { 
-      scale: 1, 
-      opacity: 1, 
+    animate: {
+      scale: 1,
+      opacity: 1,
       rotateY: 0,
       transition: { 
         duration: 0.6, 

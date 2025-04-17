@@ -13,7 +13,7 @@ const AudioPlayer = () => {
   const { currentTrack } = useContext(AudioContext);
 
   return (
-    <motion.div 
+    <motion.div
       className="audio-player"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
