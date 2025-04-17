@@ -10,7 +10,7 @@ const API_URL = 'http://127.0.0.1:8000/api/v1';
 const Playlists = () => {
   const { currentTrack, setCurrentTrack, togglePlayPause, isPlaying } = useContext(AudioContext);
   const { user } = useContext(AuthContext);
-  
+
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [newPlaylistName, setNewPlaylistName] = useState('');
