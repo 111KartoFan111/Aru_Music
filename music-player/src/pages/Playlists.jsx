@@ -21,6 +21,7 @@ const Playlists = () => {
   const [availableTracks, setAvailableTracks] = useState([]);
   const [searchTrack, setSearchTrack] = useState('');
   const [filteredTracks, setFilteredTracks] = useState([]);
+  const [deletingPlaylist, setDeletingPlaylist] = useState(false);
 
   // Get auth headers
   const getAuthHeaders = () => {
@@ -75,6 +76,8 @@ const Playlists = () => {
     }
   };
 
+
+
   // Fetch available tracks
   const fetchAvailableTracks = async () => {
     try {
@@ -126,21 +129,18 @@ const Playlists = () => {
     setError(null);
     
     try {
-// Исправьте формирование FormData
-      const formData = new FormData();
-      formData.append('name', newPlaylistName);
-      formData.append('description', newPlaylistDescription || ''); // Убедитесь, что это не null
-      formData.append('is_public', newPlaylistIsPublic.toString()); // Преобразуйте в строку
-      formData.append('cover', coverFile);
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
+      // Create the playlist with proper data
+      const playlistData = {
+        name: newPlaylistName,
+        description: newPlaylistDescription || '',
+        is_public: newPlaylistIsPublic
+      };
 
-      // Отправьте запрос с правильными заголовками
-      await axios.post(`${API_URL}/playlists`, formData, {
+      // Send request with proper content type
+      await axios.post(`${API_URL}/playlists`, playlistData, {
         headers: {
           ...getAuthHeaders(),
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         }
       });
       
@@ -154,6 +154,32 @@ const Playlists = () => {
       setError('Failed to create playlist. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Delete playlist
+  const handleDeletePlaylist = async (playlistId) => {
+    if (!user.isAuthenticated) return;
+    
+    setDeletingPlaylist(true);
+    
+    try {
+      await axios.delete(`${API_URL}/playlists/${playlistId}`, {
+        headers: getAuthHeaders()
+      });
+      
+      // If the deleted playlist is currently selected, clear it
+      if (selectedPlaylist && selectedPlaylist.id === playlistId) {
+        setSelectedPlaylist(null);
+      }
+      
+      // Refresh playlists
+      fetchPlaylists();
+    } catch (err) {
+      console.error('Failed to delete playlist:', err);
+      setError('Failed to delete playlist');
+    } finally {
+      setDeletingPlaylist(false);
     }
   };
 
@@ -253,7 +279,16 @@ const Playlists = () => {
             </svg>
             Back to playlists
           </button>
-          <h2 className="playlist-title">{selectedPlaylist.name}</h2>
+          <div className="playlist-header-actions">
+            <h2 className="playlist-title">{selectedPlaylist.name}</h2>
+            <button 
+              className="delete-playlist-button"
+              onClick={() => handleDeletePlaylist(selectedPlaylist.id)}
+              disabled={deletingPlaylist}
+            >
+              {deletingPlaylist ? 'Deleting...' : 'Delete Playlist'}
+            </button>
+          </div>
           <p className="playlist-description">{selectedPlaylist.description}</p>
         </div>
         
@@ -383,6 +418,7 @@ const Playlists = () => {
           onChange={(e) => setNewPlaylistDescription(e.target.value)}
           className="playlist-textarea"
         />
+
         <div className="privacy-toggle">
           <label>
             <input
@@ -423,34 +459,50 @@ const Playlists = () => {
                 <motion.div
                   key={playlist.id}
                   className="playlist-item"
-                  onClick={() => handleSelectPlaylist(playlist)}
                   variants={itemVariants}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="playlist-cover">
-                    {playlist.cover_path ? (
-                      <img
-                        src={`http://localhost:8000${playlist.cover_path.replace(/\\/g, '/')}`}
-                        alt={playlist.name}
-                      />
-                    ) : (
-                      <div className="default-cover">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v2H3v-2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z" />
-                        </svg>
-                      </div>
-                    )}
+                  <div 
+                    className="playlist-content-wrapper"
+                    onClick={() => handleSelectPlaylist(playlist)}
+                  >
+                    <div className="playlist-cover">
+                      {playlist.cover_path ? (
+                        <img
+                          src={`http://localhost:8000${playlist.cover_path.replace(/\\/g, '/')}`}
+                          alt={playlist.name}
+                        />
+                      ) : (
+                        <div className="default-cover">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v2H3v-2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="playlist-info">
+                      <h4 className="playlist-name">{playlist.name}</h4>
+                      {playlist.description && (
+                        <p className="playlist-description">{playlist.description}</p>
+                      )}
+                      <p className="playlist-visibility">
+                        {playlist.is_public ? 'Public' : 'Private'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="playlist-info">
-                    <h4 className="playlist-name">{playlist.name}</h4>
-                    {playlist.description && (
-                      <p className="playlist-description">{playlist.description}</p>
-                    )}
-                    <p className="playlist-visibility">
-                      {playlist.is_public ? 'Public' : 'Private'}
-                    </p>
-                  </div>
+                  <button
+                    className="delete-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePlaylist(playlist.id);
+                    }}
+                    disabled={deletingPlaylist}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg>
+                  </button>
                 </motion.div>
               ))}
             </AnimatePresence>

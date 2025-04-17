@@ -471,3 +471,77 @@
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
 }
+/* Add these styles to your existing Playlists.css file */
+
+
+
+/* Delete Button Styles */
+.delete-button {
+  background-color: #ff4040;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 10px;
+}
+
+.delete-button:hover {
+  background-color: #d63030;
+}
+
+.delete-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.delete-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Playlist Item Layout */
+.playlist-item {
+  display: flex;
+  align-items: center;
+}
+
+.playlist-content-wrapper {
+  display: flex;
+  flex: 1;
+  cursor: pointer;
+}
+
+/* Delete Playlist Button in Playlist Detail View */
+.playlist-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.delete-playlist-button {
+  background-color: #ff4040;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-playlist-button:hover {
+  background-color: #d63030;
+}
+
+.delete-playlist-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
