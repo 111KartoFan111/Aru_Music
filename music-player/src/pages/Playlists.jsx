@@ -12,7 +12,6 @@ const Playlists = () => {
   const { user } = useContext(AuthContext);
   
   const [playlists, setPlaylists] = useState([]);
-  const [coverFile, setCoverFile] = useState(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [newPlaylistDescription, setNewPlaylistDescription] = useState('');
@@ -109,10 +108,6 @@ const Playlists = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleCoverChange = (e) => {
-    setCoverFile(e.target.files[0]);
   };
 
   // Create new playlist
@@ -382,15 +377,6 @@ const Playlists = () => {
           onChange={(e) => setNewPlaylistName(e.target.value)}
           className="playlist-input"
         />
-          <div className="file-input">
-            <label>Обложка:</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleCoverChange}
-            />
-            {coverFile && <span className="file-name">{coverFile.name}</span>}
-          </div>
         <textarea
           placeholder="Description (optional)"
           value={newPlaylistDescription}

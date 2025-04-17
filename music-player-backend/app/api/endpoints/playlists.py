@@ -33,9 +33,6 @@ def get_playlists(
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
 ) -> Any:
-    """
-    Get playlists with optional filtering
-    """
     # Start with user's playlists
     query = db.query(Playlist).filter(Playlist.user_id == current_user.id)
     
@@ -72,44 +69,18 @@ def create_playlist(
     db: Session = Depends(get_db),
     playlist_in: PlaylistCreate,
     current_user: User = Depends(get_current_user),
-    cover: Optional[UploadFile] = File(None),
 ) -> Any:
-    """
-    Create new playlist
-    """
-    # Process cover if provided
-    cover_path = None
-    if cover:
-        if not validate_file_extension(cover.filename, settings.ALLOWED_COVER_EXTENSIONS):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid cover file format. Allowed formats: {', '.join(settings.ALLOWED_COVER_EXTENSIONS)}"
-            )
-        
-        # Generate unique filename
-        cover_filename = f"{uuid.uuid4()}.{cover.filename.split('.')[-1].lower()}"
-        cover_dir_path = os.path.join(settings.COVERS_DIR, cover_filename)
-        
-        # Save file
-        cover_full_path = os.path.join(settings.MEDIA_ROOT, cover_dir_path)
-        with open(cover_full_path, "wb") as buffer:
-            shutil.copyfileobj(cover.file, buffer)
-        
-        cover_path = f"/media/{cover_dir_path}"
-    
-    # Create playlist
     playlist = Playlist(
         name=playlist_in.name,
         description=playlist_in.description,
         is_public=playlist_in.is_public,
-        cover_path=cover_path,
         user_id=current_user.id
     )
-    
+
     db.add(playlist)
     db.commit()
     db.refresh(playlist)
-    
+
     return playlist
 
 @router.get("/{playlist_id}", response_model=PlaylistWithTracks)
@@ -119,9 +90,6 @@ def get_playlist(
     playlist_id: int,
     current_user: User = Depends(get_current_user),
 ) -> Any:
-    """
-    Get playlist by ID
-    """
     playlist = db.query(Playlist).filter(Playlist.id == playlist_id).first()
     if not playlist:
         raise HTTPException(status_code=404, detail="Playlist not found")
@@ -154,11 +122,7 @@ def update_playlist(
     playlist_id: int,
     playlist_in: PlaylistUpdate,
     current_user: User = Depends(get_current_user),
-    cover: Optional[UploadFile] = File(None),
 ) -> Any:
-    """
-    Update playlist
-    """
     playlist = db.query(Playlist).filter(Playlist.id == playlist_id).first()
     if not playlist:
         raise HTTPException(status_code=404, detail="Playlist not found")
@@ -179,33 +143,7 @@ def update_playlist(
     
     if playlist_in.is_public is not None:
         playlist.is_public = playlist_in.is_public
-    
-    # Update cover if provided
-    if cover:
-        if not validate_file_extension(cover.filename, settings.ALLOWED_COVER_EXTENSIONS):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid cover file format. Allowed formats: {', '.join(settings.ALLOWED_COVER_EXTENSIONS)}"
-            )
-        
-        # Generate unique filename
-        cover_filename = f"{uuid.uuid4()}.{cover.filename.split('.')[-1].lower()}"
-        cover_dir_path = os.path.join(settings.COVERS_DIR, cover_filename)
-        
-        # Save new cover
-        cover_full_path = os.path.join(settings.MEDIA_ROOT, cover_dir_path)
-        with open(cover_full_path, "wb") as buffer:
-            shutil.copyfileobj(cover.file, buffer)
-        
-        # Delete old cover if it exists
-        if playlist.cover_path:
-            old_cover_path = os.path.join(settings.MEDIA_ROOT, playlist.cover_path.replace("/media/", ""))
-            if os.path.exists(old_cover_path):
-                os.remove(old_cover_path)
-        
-        # Update playlist
-        playlist.cover_path = f"/media/{cover_dir_path}"
-    
+
     db.commit()
     db.refresh(playlist)
     
@@ -218,9 +156,7 @@ def delete_playlist(
     playlist_id: int,
     current_user: User = Depends(get_current_user),
 ) -> None:
-    """
-    Delete playlist
-    """
+
     playlist = db.query(Playlist).filter(Playlist.id == playlist_id).first()
     if not playlist:
         raise HTTPException(status_code=404, detail="Playlist not found")
@@ -231,13 +167,6 @@ def delete_playlist(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to delete this playlist"
         )
-    
-    # Delete cover if it exists
-    if playlist.cover_path:
-        cover_path = os.path.join(settings.MEDIA_ROOT, playlist.cover_path.replace("/media/", ""))
-        if os.path.exists(cover_path):
-            os.remove(cover_path)
-    
     # Delete playlist
     db.delete(playlist)
     db.commit()
@@ -385,9 +314,6 @@ def remove_track_from_playlist(
     track_id: int,
     current_user: User = Depends(get_current_user),
 ) -> Any:
-    """
-    Remove track from playlist
-    """
     # Check if playlist exists and current user is the owner
     playlist = db.query(Playlist).filter(Playlist.id == playlist_id).first()
     if not playlist:

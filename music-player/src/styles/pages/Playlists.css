@@ -239,6 +239,16 @@
   margin: 0 0 0.5rem 0;
 }
 
+.required {
+  color: red;
+}
+
+.file-required {
+  color: #ff6b6b;
+  font-size: 0.8rem;
+  margin-left: 8px;
+}
+
 .playlist-content {
   display: grid;
   gap: 2rem;
