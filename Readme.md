@@ -1,5 +1,8 @@
 1. Установить 11 вервию пайтона
 
+## Cоздать базу данных в бд tuneviewer
+
+
 
 https://www.python.org/downloads/release/python-3110/
 
