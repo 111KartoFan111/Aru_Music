@@ -1,7 +1,7 @@
 1. Установить 11 вервию пайтона
 
 
-url(https://www.python.org/downloads/release/python-3110/)
+https://www.python.org/downloads/release/python-3110/
 
 ## Запуск бэкенда
 
